@@ -9,7 +9,17 @@ export async function fetchCoins(): Promise<Coin[]> {
 }
 
 export async function addCoin(input: CoinInput): Promise<Coin> {
-  const { data, error } = await supabase.from('coins').insert(coinInputToRow(input)).select().single()
+  // Imposta esplicitamente il proprietario della moneta all'utente loggato:
+  // è ciò che la policy RLS di INSERT verifica (auth.uid() = user_id).
+  const { data: sessionData } = await supabase.auth.getSession()
+  const userId = sessionData.session?.user.id
+  if (!userId) throw new Error('Sessione non valida: effettua di nuovo l\'accesso.')
+
+  const { data, error } = await supabase
+    .from('coins')
+    .insert({ ...coinInputToRow(input), user_id: userId })
+    .select()
+    .single()
   if (error) throw error
   return rowToCoin(data as CoinRow)
 }
