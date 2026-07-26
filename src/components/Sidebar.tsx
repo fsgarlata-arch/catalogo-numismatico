@@ -1,7 +1,8 @@
-import { Coins, Star, ShieldCheck, Plus, Landmark, UserCircle } from 'lucide-react'
+import { Coins, Star, ShieldCheck, Plus, Landmark, UserCircle, FileSpreadsheet } from 'lucide-react'
 import type { Coin, Epoca } from '../db/types'
 import { EPOCHE } from '../db/types'
 import { formatEuro } from '../utils/format'
+import { exportCoinsToExcel } from '../utils/export'
 
 export type FiltroSpeciale = 'tutte' | 'preferite' | 'periziate'
 
@@ -123,6 +124,14 @@ export function Sidebar({
           <p className="text-xs uppercase tracking-wide text-stone-400">Valore stimato collezione</p>
           <p className="mt-1 font-serif text-lg font-semibold text-stone-800 dark:text-stone-100">{formatEuro(valoreTotale) || '—'}</p>
         </div>
+        <button
+          onClick={() => exportCoinsToExcel(coins)}
+          disabled={totale === 0}
+          className="flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-left text-sm text-stone-700 hover:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-stone-800 dark:bg-stone-900 dark:text-stone-200 dark:hover:bg-stone-800"
+        >
+          <FileSpreadsheet size={20} className="shrink-0 text-emerald-600 dark:text-emerald-500" />
+          <span className="min-w-0 flex-1 truncate">Esporta in Excel</span>
+        </button>
         <button
           onClick={onAccount}
           className="flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-left text-sm text-stone-700 hover:bg-stone-100 dark:border-stone-800 dark:bg-stone-900 dark:text-stone-200 dark:hover:bg-stone-800"
