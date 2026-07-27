@@ -11,6 +11,7 @@ import { CoinGrid, type Ordinamento } from './components/CoinGrid'
 import { CoinDetail } from './components/CoinDetail'
 import { CoinForm } from './components/CoinForm'
 import { AccountPanel } from './components/AccountPanel'
+import { Toast } from './components/Toast'
 
 function SetupNotice() {
   return (
@@ -41,6 +42,7 @@ function AppShell() {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
   const [accountOpen, setAccountOpen] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [toast, setToast] = useState<string | null>(null)
 
   const selectedCoin = coins.find((c) => c.id === selectedId) ?? null
 
@@ -88,9 +90,11 @@ function AppShell() {
     try {
       if (formOpen === 'edit' && selectedCoin) {
         await updateCoin(selectedCoin.id, input)
+        setToast('Modifiche salvate nel database ✓')
       } else {
         const coin = await addCoin(input)
         setSelectedId(coin.id)
+        setToast('Moneta salvata nel database ✓')
       }
       await refresh()
       setFormOpen(null)
@@ -223,6 +227,8 @@ function AppShell() {
       )}
 
       {accountOpen && <AccountPanel onClose={() => setAccountOpen(false)} />}
+
+      {toast && <Toast message={toast} onClose={() => setToast(null)} />}
     </div>
   )
 }
