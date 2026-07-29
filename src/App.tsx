@@ -45,6 +45,9 @@ function descriviErroreSalvataggio(err: unknown): string {
     spiegazione = 'La sessione è scaduta. Esci e accedi di nuovo, poi riprova.'
   } else if (/Failed to fetch|NetworkError|network/i.test(testo)) {
     spiegazione = 'Non riesco a contattare il database. Controlla la connessione a internet e riprova.'
+  } else if (/statement timeout|canceling statement|cancelling statement|57014/i.test(testo)) {
+    spiegazione =
+      'Il database ha impiegato troppo tempo e ha annullato il salvataggio. Di solito succede con foto molto pesanti: prova a salvare la moneta senza foto, e se funziona riaggiungile una alla volta.'
   } else if (/payload|too large|value too long/i.test(testo)) {
     spiegazione = 'Le immagini allegate sono troppo pesanti. Prova a salvare la moneta con una sola foto, o senza foto.'
   }
