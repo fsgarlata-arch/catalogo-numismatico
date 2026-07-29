@@ -88,15 +88,18 @@ function AppShell() {
   async function handleSave(input: CoinInput) {
     setSaving(true)
     try {
+      let messaggio: string
       if (formOpen === 'edit' && selectedCoin) {
         await updateCoin(selectedCoin.id, input)
-        setToast('Modifiche salvate nel database ✓')
+        messaggio = 'Modifiche salvate nel database ✓'
       } else {
         const coin = await addCoin(input)
         setSelectedId(coin.id)
-        setToast('Moneta salvata nel database ✓')
+        messaggio = 'Moneta salvata nel database ✓'
       }
-      await refresh()
+      const aggiornate = await refresh()
+      const n = aggiornate.length
+      setToast(`${messaggio} — ${n} ${n === 1 ? 'moneta' : 'monete'} in totale nel catalogo`)
       setFormOpen(null)
     } catch (err) {
       alert(`Impossibile salvare la moneta: ${(err as Error).message}`)

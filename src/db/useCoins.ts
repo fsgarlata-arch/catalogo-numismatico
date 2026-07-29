@@ -8,15 +8,17 @@ export function useCoins() {
   const [coins, setCoins] = useState<Coin[]>([])
   const [loading, setLoading] = useState(true)
 
-  const refresh = useCallback(async () => {
+  const refresh = useCallback(async (): Promise<Coin[]> => {
     if (!user) {
       setCoins([])
       setLoading(false)
-      return
+      return []
     }
     setLoading(true)
     try {
-      setCoins(await fetchCoins())
+      const data = await fetchCoins()
+      setCoins(data)
+      return data
     } finally {
       setLoading(false)
     }
