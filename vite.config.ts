@@ -4,6 +4,13 @@ import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
+  // Versione mostrata nell'app: serve a capire a colpo d'occhio se il
+  // dispositivo sta usando l'ultima build o una copia vecchia in cache.
+  define: {
+    __APP_VERSION__: JSON.stringify(
+      new Date().toISOString().slice(0, 16).replace('T', ' ') + ' UTC',
+    ),
+  },
   server: {
     port: Number(process.env.PORT) || 5173,
   },

@@ -1,4 +1,4 @@
-import { Coins, Star, ShieldCheck, Plus, Landmark, UserCircle, FileSpreadsheet } from 'lucide-react'
+import { Coins, Star, ShieldCheck, Plus, Landmark, UserCircle, FileSpreadsheet, RefreshCw } from 'lucide-react'
 import type { Coin, Epoca } from '../db/types'
 import { EPOCHE } from '../db/types'
 import { formatEuro } from '../utils/format'
@@ -139,7 +139,35 @@ export function Sidebar({
           <UserCircle size={20} className="shrink-0 text-stone-400" />
           <span className="min-w-0 flex-1 truncate">{userEmail ?? 'Il mio account'}</span>
         </button>
+
+        <button
+          onClick={forzaAggiornamento}
+          title="Scarica l'ultima versione dell'app, ignorando la copia salvata sul dispositivo"
+          className="flex items-center justify-center gap-1.5 px-1 py-1 text-[11px] text-stone-400 hover:text-stone-600 dark:hover:text-stone-300"
+        >
+          <RefreshCw size={12} className="shrink-0" />
+          <span>Versione {__APP_VERSION__} · Aggiorna app</span>
+        </button>
       </div>
     </aside>
   )
+}
+
+/**
+ * Elimina service worker e cache della PWA, poi ricarica: è il modo affidabile
+ * per uscire da una versione vecchia rimasta bloccata sul dispositivo.
+ */
+async function forzaAggiornamento() {
+  try {
+    if ('serviceWorker' in navigator) {
+      const registrazioni = await navigator.serviceWorker.getRegistrations()
+      await Promise.all(registrazioni.map((r) => r.unregister()))
+    }
+    if ('caches' in window) {
+      const chiavi = await caches.keys()
+      await Promise.all(chiavi.map((k) => caches.delete(k)))
+    }
+  } finally {
+    window.location.replace(`${window.location.pathname}?agg=${Date.now()}`)
+  }
 }

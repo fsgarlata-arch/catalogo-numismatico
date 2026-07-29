@@ -29,6 +29,30 @@ function SetupNotice() {
   )
 }
 
+/**
+ * Traduce in italiano gli errori di salvataggio più comuni, allegando sempre il
+ * dettaglio tecnico così che un problema residuo sia diagnosticabile.
+ */
+function descriviErroreSalvataggio(err: unknown): string {
+  const e = err as { message?: string; code?: string; details?: string; hint?: string }
+  const testo = e?.message ?? String(err)
+
+  let spiegazione = 'Impossibile salvare la moneta.'
+  if (/row-level security|row level security/i.test(testo)) {
+    spiegazione =
+      'Il database ha rifiutato il salvataggio perché la moneta non risulta associata al tuo account. Prova a uscire e rientrare, poi usa "Aggiorna app" in fondo al menu laterale.'
+  } else if (/JWT|token|session/i.test(testo)) {
+    spiegazione = 'La sessione è scaduta. Esci e accedi di nuovo, poi riprova.'
+  } else if (/Failed to fetch|NetworkError|network/i.test(testo)) {
+    spiegazione = 'Non riesco a contattare il database. Controlla la connessione a internet e riprova.'
+  } else if (/payload|too large|value too long/i.test(testo)) {
+    spiegazione = 'Le immagini allegate sono troppo pesanti. Prova a salvare la moneta con una sola foto, o senza foto.'
+  }
+
+  const dettagli = [e?.code && `codice: ${e.code}`, testo, e?.details, e?.hint].filter(Boolean).join(' · ')
+  return `${spiegazione}\n\nDettaglio tecnico:\n${dettagli}`
+}
+
 function AppShell() {
   const { user, signOut } = useAuth()
   const { coins, refresh } = useCoins()
@@ -102,7 +126,7 @@ function AppShell() {
       setToast(`${messaggio} — ${n} ${n === 1 ? 'moneta' : 'monete'} in totale nel catalogo`)
       setFormOpen(null)
     } catch (err) {
-      alert(`Impossibile salvare la moneta: ${(err as Error).message}`)
+      alert(descriviErroreSalvataggio(err))
     } finally {
       setSaving(false)
     }

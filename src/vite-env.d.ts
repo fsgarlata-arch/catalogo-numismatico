@@ -8,3 +8,6 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv
 }
+
+/** Data/ora della build, iniettata da vite.config.ts */
+declare const __APP_VERSION__: string
