@@ -33,8 +33,8 @@ export function exportCoinsToExcel(coins: Coin[]): void {
     'Prezzo di acquisto (€)': c.prezzoAcquisto ?? '',
     Note: c.note,
     Preferita: c.preferita ? 'Sì' : 'No',
-    'Foto dritto': c.immagineDritto ? 'Sì' : 'No',
-    'Foto rovescio': c.immagineRovescio ? 'Sì' : 'No',
+    // Le foto non sono incluse: l'elenco non le scarica (sarebbero centinaia di
+    // kB per moneta) e restano consultabili nel dettaglio di ciascuna moneta.
     'Data inserimento': dataIt(c.dataInserimento),
     'Ultima modifica': dataIt(c.dataModifica),
   }))
@@ -46,7 +46,7 @@ export function exportCoinsToExcel(coins: Coin[]): void {
     { wch: 22 }, { wch: 20 }, { wch: 20 }, { wch: 14 }, { wch: 18 }, { wch: 14 },
     { wch: 16 }, { wch: 10 }, { wch: 12 }, { wch: 12 }, { wch: 18 }, { wch: 22 },
     { wch: 10 }, { wch: 20 }, { wch: 18 }, { wch: 20 }, { wch: 16 }, { wch: 18 },
-    { wch: 40 }, { wch: 10 }, { wch: 11 }, { wch: 12 }, { wch: 16 }, { wch: 16 },
+    { wch: 40 }, { wch: 10 }, { wch: 16 }, { wch: 16 },
   ]
 
   const workbook = XLSX.utils.book_new()

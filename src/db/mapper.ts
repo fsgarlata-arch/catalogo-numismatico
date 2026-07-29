@@ -22,8 +22,10 @@ export interface CoinRow {
   valore_stimato: number | null
   prezzo_acquisto: number | null
   note: string
-  immagine_dritto: string | null
-  immagine_rovescio: string | null
+  // Opzionali: la query dell'elenco non seleziona le immagini per non
+  // scaricare centinaia di kB per moneta ad ogni ricarica.
+  immagine_dritto?: string | null
+  immagine_rovescio?: string | null
   preferita: boolean
   data_inserimento: string
   data_modifica: string
@@ -51,8 +53,9 @@ export function rowToCoin(row: CoinRow): Coin {
     valoreStimato: row.valore_stimato,
     prezzoAcquisto: row.prezzo_acquisto,
     note: row.note,
-    immagineDritto: row.immagine_dritto,
-    immagineRovescio: row.immagine_rovescio,
+    // Assenti quando la riga arriva dalla query dell'elenco, che non le scarica.
+    immagineDritto: row.immagine_dritto ?? null,
+    immagineRovescio: row.immagine_rovescio ?? null,
     preferita: row.preferita,
     dataInserimento: row.data_inserimento,
     dataModifica: row.data_modifica,

@@ -1,11 +1,11 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Menu, Landmark } from 'lucide-react'
 import { useAuth } from './auth/AuthContext'
 import { AuthScreen } from './auth/AuthScreen'
 import { supabaseConfigured } from './lib/supabase'
 import { useCoins } from './db/useCoins'
-import { addCoin, deleteCoin, toggleFavorite, updateCoin } from './db/actions'
-import type { CoinInput, Epoca } from './db/types'
+import { addCoin, deleteCoin, fetchCoinCompleta, toggleFavorite, updateCoin } from './db/actions'
+import type { Coin, CoinInput, Epoca } from './db/types'
 import { Sidebar, type FiltroSpeciale } from './components/Sidebar'
 import { CoinGrid, type Ordinamento } from './components/CoinGrid'
 import { CoinDetail } from './components/CoinDetail'
@@ -70,8 +70,31 @@ function AppShell() {
   const [accountOpen, setAccountOpen] = useState(false)
   const [saving, setSaving] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
+  const [immagini, setImmagini] = useState<Pick<Coin, 'immagineDritto' | 'immagineRovescio'> | null>(null)
 
-  const selectedCoin = coins.find((c) => c.id === selectedId) ?? null
+  const coinElenco = coins.find((c) => c.id === selectedId) ?? null
+  // L'elenco non contiene le immagini: quelle della moneta aperta arrivano da
+  // una richiesta dedicata e vengono unite qui.
+  const selectedCoin = coinElenco && immagini ? { ...coinElenco, ...immagini } : coinElenco
+
+  useEffect(() => {
+    if (!selectedId) {
+      setImmagini(null)
+      return
+    }
+    let annullato = false
+    setImmagini(null)
+    fetchCoinCompleta(selectedId)
+      .then((c) => {
+        if (!annullato) setImmagini({ immagineDritto: c.immagineDritto, immagineRovescio: c.immagineRovescio })
+      })
+      .catch(() => {
+        /* senza immagini il dettaglio resta comunque consultabile */
+      })
+    return () => {
+      annullato = true
+    }
+  }, [selectedId])
 
   const filtered = useMemo(() => {
     let list = coins
@@ -111,6 +134,24 @@ function AppShell() {
         : epocaFiltro !== 'tutte'
           ? epocaFiltro[0].toUpperCase() + epocaFiltro.slice(1)
           : 'Tutte le monete'
+
+  /**
+   * Apre la modifica solo con le immagini già disponibili: il modulo riscrive
+   * tutti i campi, quindi partire senza foto le cancellerebbe dal database.
+   */
+  async function apriModifica() {
+    if (!selectedId) return
+    if (!immagini) {
+      try {
+        const c = await fetchCoinCompleta(selectedId)
+        setImmagini({ immagineDritto: c.immagineDritto, immagineRovescio: c.immagineRovescio })
+      } catch {
+        alert('Non riesco a caricare le foto di questa moneta: riprova tra qualche istante.')
+        return
+      }
+    }
+    setFormOpen('edit')
+  }
 
   async function handleSave(input: CoinInput) {
     setSaving(true)
@@ -235,7 +276,7 @@ function AppShell() {
           <div className="w-full shrink-0 lg:w-[420px] lg:border-l lg:border-stone-200 lg:dark:border-stone-800">
             <CoinDetail
               coin={selectedCoin}
-              onEdit={() => setFormOpen('edit')}
+              onEdit={apriModifica}
               onDelete={handleDelete}
               onToggleFavorite={handleToggleFavorite}
               onClose={() => setSelectedId(null)}
