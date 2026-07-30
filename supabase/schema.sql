@@ -28,6 +28,10 @@ create table if not exists public.coins (
   note text not null default '',
   immagine_dritto text,
   immagine_rovescio text,
+  -- Versione ridotta del dritto (~2 kB): è l'unica immagine caricata
+  -- nell'elenco, così la griglia mostra le miniature senza scaricare le foto
+  -- intere di ogni moneta (che farebbero scadere lo statement timeout).
+  miniatura_dritto text,
   preferita boolean not null default false,
 
   data_inserimento timestamptz not null default now(),

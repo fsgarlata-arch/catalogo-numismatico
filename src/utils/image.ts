@@ -7,6 +7,11 @@ const QUALITY_INIZIALE = 0.72
 const QUALITY_MINIMA = 0.4
 const MAX_BYTES = 200_000
 
+// Miniatura per la griglia del catalogo: minuscola di proposito, così può
+// essere scaricata per ogni moneta dell'elenco senza appesantire la query.
+const MINIATURA_DIM = 160
+const MINIATURA_QUALITY = 0.6
+
 /** Byte effettivi rappresentati da un data URL base64. */
 function pesoDataUrl(dataUrl: string): number {
   const base64 = dataUrl.slice(dataUrl.indexOf(',') + 1)
@@ -37,4 +42,29 @@ export async function fileToCompressedDataUrl(file: File): Promise<string> {
   }
 
   return dataUrl
+}
+
+/**
+ * Ricava dalla foto già compressa una miniatura per la griglia del catalogo.
+ * Restituisce null se l'immagine non è leggibile: la griglia ripiega
+ * sull'iniziale del nome, quindi non è un errore bloccante.
+ */
+export async function creaMiniatura(dataUrl: string): Promise<string | null> {
+  try {
+    const risposta = await fetch(dataUrl)
+    const bitmap = await createImageBitmap(await risposta.blob())
+    const scale = Math.min(1, MINIATURA_DIM / Math.max(bitmap.width, bitmap.height))
+
+    const canvas = document.createElement('canvas')
+    canvas.width = Math.round(bitmap.width * scale)
+    canvas.height = Math.round(bitmap.height * scale)
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return null
+    ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height)
+    bitmap.close?.()
+
+    return canvas.toDataURL('image/jpeg', MINIATURA_QUALITY)
+  } catch {
+    return null
+  }
 }

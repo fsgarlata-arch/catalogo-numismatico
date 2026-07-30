@@ -26,6 +26,7 @@ export interface CoinRow {
   // scaricare centinaia di kB per moneta ad ogni ricarica.
   immagine_dritto?: string | null
   immagine_rovescio?: string | null
+  miniatura_dritto: string | null
   preferita: boolean
   data_inserimento: string
   data_modifica: string
@@ -56,6 +57,7 @@ export function rowToCoin(row: CoinRow): Coin {
     // Assenti quando la riga arriva dalla query dell'elenco, che non le scarica.
     immagineDritto: row.immagine_dritto ?? null,
     immagineRovescio: row.immagine_rovescio ?? null,
+    miniaturaDritto: row.miniatura_dritto ?? null,
     preferita: row.preferita,
     dataInserimento: row.data_inserimento,
     dataModifica: row.data_modifica,
@@ -85,6 +87,7 @@ export function coinInputToRow(input: CoinInput) {
     note: input.note,
     immagine_dritto: input.immagineDritto,
     immagine_rovescio: input.immagineRovescio,
+    miniatura_dritto: input.miniaturaDritto,
     preferita: input.preferita,
   }
 }

@@ -6,6 +6,7 @@ import { supabaseConfigured } from './lib/supabase'
 import { useCoins } from './db/useCoins'
 import { addCoin, deleteCoin, fetchCoinCompleta, toggleFavorite, updateCoin } from './db/actions'
 import type { Coin, CoinInput, Epoca } from './db/types'
+import { creaMiniatura } from './utils/image'
 import { Sidebar, type FiltroSpeciale } from './components/Sidebar'
 import { CoinGrid, type Ordinamento } from './components/CoinGrid'
 import { CoinDetail } from './components/CoinDetail'
@@ -153,9 +154,18 @@ function AppShell() {
     setFormOpen('edit')
   }
 
-  async function handleSave(input: CoinInput) {
+  async function handleSave(inputOriginale: CoinInput) {
     setSaving(true)
     try {
+      // La miniatura mostrata nella griglia viene sempre riderivata dal dritto,
+      // così resta allineata anche quando la foto viene sostituita o rimossa.
+      const input: CoinInput = {
+        ...inputOriginale,
+        miniaturaDritto: inputOriginale.immagineDritto
+          ? await creaMiniatura(inputOriginale.immagineDritto)
+          : null,
+      }
+
       let messaggio: string
       if (formOpen === 'edit' && selectedCoin) {
         await updateCoin(selectedCoin.id, input)

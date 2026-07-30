@@ -31,6 +31,7 @@ const COLONNE_ELENCO = [
   'prezzo_acquisto',
   'note',
   'preferita',
+  'miniatura_dritto',
   'data_inserimento',
   'data_modifica',
 ].join(',')

@@ -19,8 +19,8 @@ export function CoinCard({ coin, selected, onSelect }: Props) {
     >
       <div className="relative">
         <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border border-stone-300 bg-gradient-to-br from-stone-100 to-stone-200 shadow-inner dark:border-stone-700 dark:from-stone-800 dark:to-stone-900">
-          {coin.immagineDritto ? (
-            <img src={coin.immagineDritto} alt={coin.nome} className="h-full w-full object-cover" />
+          {coin.miniaturaDritto ? (
+            <img src={coin.miniaturaDritto} alt={coin.nome} loading="lazy" className="h-full w-full object-cover" />
           ) : (
             <span className="text-2xl font-serif text-stone-400 dark:text-stone-600">
               {coin.nome.slice(0, 1).toUpperCase() || '?'}

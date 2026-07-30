@@ -32,6 +32,8 @@ const empty: CoinInput = {
   note: '',
   immagineDritto: null,
   immagineRovescio: null,
+  // Rigenerata automaticamente al salvataggio a partire dal dritto.
+  miniaturaDritto: null,
   preferita: false,
 }
 

@@ -23,6 +23,8 @@ export interface Coin {
   note: string
   immagineDritto: string | null
   immagineRovescio: string | null
+  /** Versione ridotta del dritto (~5 kB): l'unica immagine scaricata nell'elenco. */
+  miniaturaDritto: string | null
   preferita: boolean
   dataInserimento: string
   dataModifica: string
