@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { Camera, ImagePlus, X } from 'lucide-react'
 import { fileToCompressedDataUrl } from '../utils/image'
+import { MonetaPlaceholder } from './MonetaPlaceholder'
 
 interface Props {
   label: string
@@ -41,7 +42,7 @@ export function ImageInput({ label, value, onChange }: Props) {
             </button>
           </>
         ) : (
-          <span className="text-xs text-stone-400">Nessuna immagine</span>
+          <MonetaPlaceholder className="h-full w-full text-stone-400 dark:text-stone-500" />
         )}
       </div>
       <span className="text-xs font-medium text-stone-500">{label}</span>

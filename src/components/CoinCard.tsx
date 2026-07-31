@@ -1,5 +1,6 @@
 import type { Coin } from '../db/types'
 import { Star, ShieldCheck } from 'lucide-react'
+import { MonetaPlaceholder } from './MonetaPlaceholder'
 
 interface Props {
   coin: Coin
@@ -22,9 +23,7 @@ export function CoinCard({ coin, selected, onSelect }: Props) {
           {coin.miniaturaDritto ? (
             <img src={coin.miniaturaDritto} alt={coin.nome} loading="lazy" className="h-full w-full object-cover" />
           ) : (
-            <span className="text-2xl font-serif text-stone-400 dark:text-stone-600">
-              {coin.nome.slice(0, 1).toUpperCase() || '?'}
-            </span>
+            <MonetaPlaceholder className="h-full w-full text-stone-400 dark:text-stone-500" />
           )}
         </div>
         {coin.preferita && (

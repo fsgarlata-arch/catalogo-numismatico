@@ -1,6 +1,7 @@
 import { Star, Pencil, Trash2, ShieldCheck, X } from 'lucide-react'
 import type { Coin } from '../db/types'
 import { formatEuro, formatNumber } from '../utils/format'
+import { MonetaPlaceholder } from './MonetaPlaceholder'
 
 interface Props {
   coin: Coin
@@ -57,7 +58,7 @@ export function CoinDetail({ coin, onEdit, onDelete, onToggleFavorite, onClose }
                 {coin[key] ? (
                   <img src={coin[key]!} alt={key} className="h-full w-full object-cover" />
                 ) : (
-                  <span className="text-xs text-stone-400">Nessuna immagine</span>
+                  <MonetaPlaceholder className="h-full w-full text-stone-400 dark:text-stone-500" />
                 )}
               </div>
               <span className="text-xs text-stone-400">{key === 'immagineDritto' ? 'Dritto' : 'Rovescio'}</span>
