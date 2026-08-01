@@ -96,22 +96,34 @@ function scontornaMoneta(origine: HTMLCanvasElement): HTMLCanvasElement | null {
   return canvas
 }
 
-export async function fileToCompressedDataUrl(file: File): Promise<string> {
+export interface FotoElaborata {
+  /** Immagine da usare: ritagliata e scontornata quando è stato possibile. */
+  foto: string
+  /**
+   * Foto intera com'era, valorizzata solo quando il ritaglio automatico è
+   * intervenuto. Serve a permettere di tornare indietro; non viene salvata nel
+   * database, resta disponibile finché si sta compilando la scheda.
+   */
+  originale: string | null
+}
+
+export async function fileToCompressedDataUrl(file: File): Promise<FotoElaborata> {
   const bitmap = await createImageBitmap(file)
   const intera = ridimensiona(bitmap, MAX_DIM * 1.6)
   bitmap.close?.()
 
+  const ridotta = ridimensionaCanvas(intera, MAX_DIM)
+  const originale = esporta(ridotta, 'image/jpeg', QUALITY_INIZIALE)
+
   const scontornata = scontornaMoneta(intera)
-  if (scontornata) {
-    // WebP perché conserva la trasparenza dello sfondo rimosso
-    return esporta(scontornata, 'image/webp', 0.82)
+  if (!scontornata) {
+    // Riconoscimento non attendibile: si conserva la foto così com'è e non c'è
+    // nulla da annullare.
+    return { foto: originale, originale: null }
   }
 
-  // Riconoscimento non attendibile: si conserva la foto così com'è.
-  const ridotta = intera.width > MAX_DIM || intera.height > MAX_DIM
-    ? ridimensionaCanvas(intera, MAX_DIM)
-    : intera
-  return esporta(ridotta, 'image/jpeg', QUALITY_INIZIALE)
+  // WebP perché conserva la trasparenza dello sfondo rimosso
+  return { foto: esporta(scontornata, 'image/webp', 0.82), originale }
 }
 
 function ridimensionaCanvas(origine: HTMLCanvasElement, maxDim: number): HTMLCanvasElement {

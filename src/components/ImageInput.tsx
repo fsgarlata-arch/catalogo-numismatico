@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { Camera, ImagePlus, X } from 'lucide-react'
+import { Camera, ImagePlus, X, Undo2, Sparkles } from 'lucide-react'
 import { fileToCompressedDataUrl } from '../utils/image'
 import { MonetaPlaceholder } from './MonetaPlaceholder'
 
@@ -14,15 +14,31 @@ export function ImageInput({ label, value, onChange }: Props) {
   const cameraInputRef = useRef<HTMLInputElement>(null)
   const [loading, setLoading] = useState(false)
 
+  // Le due versioni dell'ultimo scatto, tenute solo finché si compila la
+  // scheda: permettono di passare dal ritaglio automatico alla foto intera.
+  const [ritagliata, setRitagliata] = useState<string | null>(null)
+  const [originale, setOriginale] = useState<string | null>(null)
+
+  const puoAnnullare = Boolean(originale && ritagliata && value === ritagliata)
+  const puoRipristinare = Boolean(originale && ritagliata && value === originale)
+
   async function handleFile(file: File | undefined) {
     if (!file) return
     setLoading(true)
     try {
-      const dataUrl = await fileToCompressedDataUrl(file)
-      onChange(dataUrl)
+      const esito = await fileToCompressedDataUrl(file)
+      setRitagliata(esito.originale ? esito.foto : null)
+      setOriginale(esito.originale)
+      onChange(esito.foto)
     } finally {
       setLoading(false)
     }
+  }
+
+  function rimuovi() {
+    setRitagliata(null)
+    setOriginale(null)
+    onChange(null)
   }
 
   return (
@@ -35,7 +51,8 @@ export function ImageInput({ label, value, onChange }: Props) {
             <img src={value} alt={label} className="h-full w-full object-cover" />
             <button
               type="button"
-              onClick={() => onChange(null)}
+              onClick={rimuovi}
+              title="Togli la foto"
               className="absolute right-1 top-1 rounded-full bg-black/60 p-1 text-white"
             >
               <X size={12} />
@@ -46,6 +63,26 @@ export function ImageInput({ label, value, onChange }: Props) {
         )}
       </div>
       <span className="text-xs font-medium text-stone-500">{label}</span>
+
+      {/* Compare solo quando il ritaglio automatico è intervenuto su questo scatto */}
+      {(puoAnnullare || puoRipristinare) && (
+        <button
+          type="button"
+          onClick={() => onChange(puoAnnullare ? originale : ritagliata)}
+          className="flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] text-amber-700 hover:bg-amber-50 dark:text-amber-500 dark:hover:bg-amber-950/40"
+        >
+          {puoAnnullare ? (
+            <>
+              <Undo2 size={12} /> Annulla ritaglio
+            </>
+          ) : (
+            <>
+              <Sparkles size={12} /> Ritaglia di nuovo
+            </>
+          )}
+        </button>
+      )}
+
       <div className="flex gap-1.5">
         <button
           type="button"
