@@ -23,7 +23,7 @@ export function CoinCard({ coin, selected, onSelect }: Props) {
           {coin.miniaturaDritto ? (
             <img src={coin.miniaturaDritto} alt={coin.nome} loading="lazy" className="h-full w-full object-cover" />
           ) : (
-            <MonetaPlaceholder className="h-full w-full text-stone-400 dark:text-stone-500" />
+            <MonetaPlaceholder className="h-full w-full" />
           )}
         </div>
         {coin.preferita && (

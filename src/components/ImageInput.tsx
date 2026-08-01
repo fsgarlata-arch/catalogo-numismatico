@@ -42,7 +42,7 @@ export function ImageInput({ label, value, onChange }: Props) {
             </button>
           </>
         ) : (
-          <MonetaPlaceholder className="h-full w-full text-stone-400 dark:text-stone-500" />
+          <MonetaPlaceholder className="h-full w-full" />
         )}
       </div>
       <span className="text-xs font-medium text-stone-500">{label}</span>

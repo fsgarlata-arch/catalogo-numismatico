@@ -58,7 +58,7 @@ export function CoinDetail({ coin, onEdit, onDelete, onToggleFavorite, onClose }
                 {coin[key] ? (
                   <img src={coin[key]!} alt={key} className="h-full w-full object-cover" />
                 ) : (
-                  <MonetaPlaceholder className="h-full w-full text-stone-400 dark:text-stone-500" />
+                  <MonetaPlaceholder className="h-full w-full" />
                 )}
               </div>
               <span className="text-xs text-stone-400">{key === 'immagineDritto' ? 'Dritto' : 'Rovescio'}</span>
