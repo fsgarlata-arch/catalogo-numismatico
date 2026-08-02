@@ -5,14 +5,14 @@ import { AuthScreen } from './auth/AuthScreen'
 import { supabaseConfigured } from './lib/supabase'
 import { useCoins } from './db/useCoins'
 import { addCoin, deleteCoin, fetchCoinCompleta, toggleFavorite, updateCoin } from './db/actions'
-import type { Coin, CoinInput, Epoca } from './db/types'
+import { coinToInput, type Coin, type CoinInput, type Epoca } from './db/types'
 import { creaMiniatura } from './utils/image'
 import { Sidebar, type FiltroSpeciale } from './components/Sidebar'
 import { CoinGrid, type Ordinamento } from './components/CoinGrid'
 import { CoinDetail } from './components/CoinDetail'
 import { CoinForm } from './components/CoinForm'
 import { AccountPanel } from './components/AccountPanel'
-import { Toast } from './components/Toast'
+import { Toast, type AzioneToast } from './components/Toast'
 
 function SetupNotice() {
   return (
@@ -70,8 +70,10 @@ function AppShell() {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
   const [accountOpen, setAccountOpen] = useState(false)
   const [saving, setSaving] = useState(false)
-  const [toast, setToast] = useState<string | null>(null)
+  const [toast, setToast] = useState<{ testo: string; azione?: AzioneToast } | null>(null)
   const [immagini, setImmagini] = useState<Pick<Coin, 'immagineDritto' | 'immagineRovescio'> | null>(null)
+  /** Incrementato per forzare il ricaricamento delle foto della moneta aperta. */
+  const [ricaricaImmagini, setRicaricaImmagini] = useState(0)
 
   const coinElenco = coins.find((c) => c.id === selectedId) ?? null
   // L'elenco non contiene le immagini: quelle della moneta aperta arrivano da
@@ -95,7 +97,7 @@ function AppShell() {
     return () => {
       annullato = true
     }
-  }, [selectedId])
+  }, [selectedId, ricaricaImmagini])
 
   const filtered = useMemo(() => {
     let list = coins
@@ -167,9 +169,14 @@ function AppShell() {
       }
 
       let messaggio: string
+      let azione: AzioneToast | undefined
       if (formOpen === 'edit' && selectedCoin) {
-        await updateCoin(selectedCoin.id, input)
+        // Fotografia dello stato precedente, scattata prima di sovrascriverlo.
+        const precedente = coinToInput(selectedCoin)
+        const id = selectedCoin.id
+        await updateCoin(id, input)
         messaggio = 'Modifiche salvate nel database ✓'
+        azione = { etichetta: 'Annulla', onClick: () => ripristina(id, precedente) }
       } else {
         const coin = await addCoin(input)
         setSelectedId(coin.id)
@@ -177,12 +184,30 @@ function AppShell() {
       }
       const aggiornate = await refresh()
       const n = aggiornate.length
-      setToast(`${messaggio} — ${n} ${n === 1 ? 'moneta' : 'monete'} in totale nel catalogo`)
+      setToast({
+        testo: `${messaggio} — ${n} ${n === 1 ? 'moneta' : 'monete'} in totale nel catalogo`,
+        azione,
+      })
       setFormOpen(null)
     } catch (err) {
       alert(descriviErroreSalvataggio(err))
     } finally {
       setSaving(false)
+    }
+  }
+
+  /** Riporta la moneta ai valori che aveva prima dell'ultima modifica. */
+  async function ripristina(id: string, precedente: CoinInput) {
+    try {
+      await updateCoin(id, precedente)
+      await refresh()
+      // L'elenco non trasporta le foto: si forza il ricaricamento di quelle
+      // della moneta aperta, qualunque essa sia adesso. Riassegnarle a mano
+      // sarebbe sbagliato se nel frattempo fosse stata aperta un'altra moneta.
+      setRicaricaImmagini((n) => n + 1)
+      setToast({ testo: 'Modifiche annullate: la moneta è tornata com’era ✓' })
+    } catch (err) {
+      alert(descriviErroreSalvataggio(err))
     }
   }
 
@@ -309,7 +334,7 @@ function AppShell() {
 
       {accountOpen && <AccountPanel onClose={() => setAccountOpen(false)} />}
 
-      {toast && <Toast message={toast} onClose={() => setToast(null)} />}
+      {toast && <Toast message={toast.testo} azione={toast.azione} onClose={() => setToast(null)} />}
     </div>
   )
 }

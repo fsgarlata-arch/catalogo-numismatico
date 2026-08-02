@@ -32,6 +32,40 @@ export interface Coin {
 
 export type CoinInput = Omit<Coin, 'id' | 'dataInserimento' | 'dataModifica'>
 
+/**
+ * Fotografia dei dati modificabili di una moneta, usata per poter ripristinare
+ * lo stato precedente dopo una modifica. I campi sono elencati per esteso di
+ * proposito: aggiungendone uno nuovo al modello, il compilatore segnala qui
+ * l'omissione invece di lasciarlo silenziosamente fuori dal ripristino.
+ */
+export function coinToInput(coin: Coin): CoinInput {
+  return {
+    nome: coin.nome,
+    sovranoEmittente: coin.sovranoEmittente,
+    statoEmittente: coin.statoEmittente,
+    epoca: coin.epoca,
+    annoConio: coin.annoConio,
+    zecca: coin.zecca,
+    metallo: coin.metallo,
+    peso: coin.peso,
+    diametro: coin.diametro,
+    tiratura: coin.tiratura,
+    rarita: coin.rarita,
+    statoConservazione: coin.statoConservazione,
+    periziata: coin.periziata,
+    enteperizia: coin.enteperizia,
+    numeroPerizia: coin.numeroPerizia,
+    riferimentoCatalogo: coin.riferimentoCatalogo,
+    valoreStimato: coin.valoreStimato,
+    prezzoAcquisto: coin.prezzoAcquisto,
+    note: coin.note,
+    immagineDritto: coin.immagineDritto,
+    immagineRovescio: coin.immagineRovescio,
+    miniaturaDritto: coin.miniaturaDritto,
+    preferita: coin.preferita,
+  }
+}
+
 export const EPOCHE: { value: Epoca; label: string }[] = [
   { value: 'antica', label: 'Antica (Grecia, Roma, Bisanzio...)' },
   { value: 'moderna', label: 'Moderna (Stati preunitari, Regno d\'Italia...)' },
