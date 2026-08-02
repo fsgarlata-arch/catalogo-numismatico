@@ -20,11 +20,14 @@ export function CoinCard({ coin, selected, onSelect }: Props) {
     >
       <div className="relative">
         <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border border-stone-300 bg-gradient-to-br from-stone-100 to-stone-200 shadow-inner dark:border-stone-700 dark:from-stone-800 dark:to-stone-900">
-          {coin.miniaturaDritto ? (
-            <img src={coin.miniaturaDritto} alt={coin.nome} loading="lazy" className="h-full w-full object-cover" />
-          ) : (
-            <MonetaPlaceholder className="h-full w-full" />
-          )}
+          {/*
+            Nella griglia si mostra sempre l'icona, anche per le monete che
+            hanno una foto: l'elenco risulta uniforme invece di alternare
+            miniature e segnaposto. Le foto restano visibili aprendo la moneta.
+            La miniatura continua a essere salvata, così tornare a mostrarla
+            qui è questione di una riga.
+          */}
+          <MonetaPlaceholder className="h-full w-full" />
         </div>
         {coin.preferita && (
           <span className="absolute -right-1 -top-1 rounded-full bg-amber-500 p-1 text-white shadow">
